@@ -1,0 +1,5 @@
+service : () -> {
+  containsKey : (nat8) -> (bool) query;
+  getPrincipal : (nat8) -> (opt principal) query;
+  insert : (nat8, principal) -> (opt principal);
+}
