@@ -1,4 +1,4 @@
-import { Principal, $query, Record, StableBTreeMap, nat8, Opt, $update } from 'azle';
+import { Principal, $query, Record, StableBTreeMap, Opt, $update } from 'azle';
 
 // actor {
 //     public shared (msg) func whoami() : async Principal {
@@ -7,28 +7,48 @@ import { Principal, $query, Record, StableBTreeMap, nat8, Opt, $update } from 'a
 // };
 
 type User = Record <{
-    id: Principal;
-    username: string;
+    email: string;
+    password: string;
+    state: string;
+    country: string;
+    zip: number;
 }>;
 
 
-
-let Users = new StableBTreeMap<nat8, Principal>(0, 100, 1_000);
+$query
+export let Users = new StableBTreeMap<Principal, User>(0, 100, 1_000);
 
 // check if key exists
 $query;
-export function containsKey(nat8: nat8): boolean {
-    return Users.containsKey(nat8);
+export function containsMyKey(Principal: Principal): boolean {
+    return Users.containsKey(Principal);
 }
 
 // retrieve principal by key
 $query;
-export function getPrincipal(nat8: nat8): Opt<Principal> {
-    return Users.get(nat8);
+export function getMyPrincipal(Principal: Principal): Opt<User> {
+    return Users.get(Principal);
 }
 
 // insert principal
 $update;
-export function insert(key: nat8, value: Principal): Opt<Principal> {
+export function insertMyPrincipal(key: Principal, value: User): Opt<User> {
     return Users.insert(key, value);
 }
+
+// if key exists, retrieve otherwise insert.
+// $update;
+// export function createEntry(Principal: Principal): Opt<User> {
+//     if (Users.containsKey(Principal)) {
+//         console.log("the User already exists ${Principal} !");
+//         return Users.get(Principal);
+//     } else {
+//         Users.insert(Principal, User);
+//     }
+// }
+
+
+// $update;
+// export function insertAgin(key: Principal, value: User): Opt<User> {
+//     return Users.insert(key, value);
+// }

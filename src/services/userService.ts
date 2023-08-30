@@ -12,14 +12,7 @@ import { getBackend, isLocalNetwork } from './backendService';
 import { unwrap } from '../utils/unwrap';
 import { backend } from '../declarations/backend';
 
-export type User = {
-  type: 'ic';
-  client: AuthClient;
-};
 
-export interface UserDetail {
-  createTime: Date | undefined;
-}
 
 export const USER_Principal =  backend.getPrincipal(0);
 
@@ -63,13 +56,22 @@ const finishLoginIC = async (client: AuthClient) => {
   agent.replaceIdentity(client.getIdentity());
 
 
+const identity = await client.getIdentity();
+const principal = identity.getPrincipal().toString();
+
+
+const fetchUser = async () => {
+  try {
+  const User_store = backend.getMyPrincipal(principal);
+  } catch (err) {
+    console.error(err);
+  }
+} else {
+
   // const detail = await loadUserDetail();
   // console.log('User:', detail);
-  USER_STORE.set({
-    type: 'ic',
-    client,
-
-  });
+  User_store.insert();
+  }
 };
 
 // const loadUserDetail = async (): Promise<UserDetail> => {
@@ -96,7 +98,7 @@ if (window.indexedDB) {
       if (client && (await client.isAuthenticated())) {
         await finishLoginIC(client);
       } else {
-        USER_STORE.set(null);
+        User_store.insertMyPrincipal(null);
       }
     } catch (err) {
       handleError(err, 'Error while fetching user info!');
