@@ -14,7 +14,7 @@ import { backend } from '../declarations/backend';
 
 
 
-export const USER_Principal =  backend.getPrincipal(0);
+let User_store = await backend.insertMyPrincipal(null);
 
 const localIdentityProvider = isLocalNetwork ? `http://localhost:4943?canisterId=${process.env.INTERNET_IDENTITY_CANISTER_ID}` : 'https://identity.ic0.app/';
 const identityProviderUrl = isLocalNetwork ?
@@ -51,28 +51,23 @@ const loginIC = async (
   return client;
 };
 
-const finishLoginIC = async (client: AuthClient) => {
+ const finishLoginIC = async (client: AuthClient) => {
   const agent = Actor.agentOf(getBackend()) as HttpAgent;
   agent.replaceIdentity(client.getIdentity());
 
 
-const identity = await client.getIdentity();
-const principal = identity.getPrincipal().toString();
+  const identity = await client.getIdentity();
+  const principal = identity.getPrincipal().toString();
+  let User_store = await backend.insertMyPrincipal(principal);
 
-
-const fetchUser = async () => {
-  try {
-  const User_store = backend.getMyPrincipal(principal);
-  } catch (err) {
-    console.error(err);
-  }
-} else {
+  console.log('User: ', User_store )
+}
 
   // const detail = await loadUserDetail();
   // console.log('User:', detail);
-  User_store.insert();
-  }
-};
+
+
+
 
 // const loadUserDetail = async (): Promise<UserDetail> => {
 //   try {
@@ -91,25 +86,25 @@ const fetchUser = async () => {
 //   }
 // };
 
-if (window.indexedDB) {
-  (async () => {
-    try {
-      const client = await clientPromise;
-      if (client && (await client.isAuthenticated())) {
-        await finishLoginIC(client);
-      } else {
-        User_store.insertMyPrincipal(null);
-      }
-    } catch (err) {
-      handleError(err, 'Error while fetching user info!');
-      window.indexedDB.deleteDatabase('auth-client-db'); // Clear login cache
-      USER_STORE.set(null);
-      return;
-    }
-  })();
-} else {
-  USER_STORE.set(null);
-}
+// if (window.indexedDB) {
+//   (async () => {
+//     try {
+//       const client = await clientPromise;
+//       if (client && (await client.isAuthenticated())) {
+//         await finishLoginIC(client);
+//       } else {
+//         User_store.insertMyPrincipal(null);
+//       }
+//     } catch (err) {
+//       handleError(err, 'Error while fetching user info!');
+//       window.indexedDB.deleteDatabase('auth-client-db'); // Clear login cache
+//       USER_STORE.insertMyPrincipal(null);
+//       return;
+//     }
+//   })();
+// } else {
+//   USER_STORE.insertMyPrincipal(null);
+// }
 
 export async function loginInternetIdentity() {
   return loginIC({
@@ -123,11 +118,11 @@ function getNetwork(): string | undefined {
 
 
 export async function logout() {
-  const user = USER_STORE.get();
+  const user = User_store.get();
   if (user?.type === 'ic') {
     await user.client.logout();
   }
-  USER_STORE.set(null);
+  User_store.set(null);
 }
 
 // export async function refreshUser() {

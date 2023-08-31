@@ -1,4 +1,4 @@
-import { Principal, $query, Record, StableBTreeMap, Opt, $update } from 'azle';
+import { Principal, $query, Record, StableBTreeMap, Opt, $update, Vec } from 'azle';
 
 // actor {
 //     public shared (msg) func whoami() : async Principal {
@@ -34,6 +34,18 @@ export function getMyPrincipal(Principal: Principal): Opt<User> {
 $update;
 export function insertMyPrincipal(key: Principal, value: User): Opt<User> {
     return Users.insert(key, value);
+}
+
+// get all users
+$query;
+export function getAllUsers(): Vec<User> {
+    return Users.values();
+}
+
+// get all principals
+$query;
+export function getAllPrincipals(): Vec<Principal> {
+    return Users.keys()
 }
 
 // if key exists, retrieve otherwise insert.
